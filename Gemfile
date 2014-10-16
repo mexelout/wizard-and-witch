@@ -53,4 +53,6 @@ end
 gem 'slim-rails'
 
 gem 'devise'
+gem 'websocket-rails'
 
+gem 'protected_attributes'
