@@ -108,7 +108,7 @@ $(window).load ->
               is_down_key = true
               prev_pos.x-=2
               player.dir = 1
-            if building.hitTest(prev_pos.x, prev_pos.y+17) == true or building.hitTest(prev_pos.x+31, prev_pos.y + 17) == true or building.hitTest(prev_pos.x, prev_pos.y+47) == true or building.hitTest(prev_pos.x+31, prev_pos.y+47) == true
+            if backbuild.hitTest(prev_pos.x, prev_pos.y+17) == true or backbuild.hitTest(prev_pos.x+31, prev_pos.y + 17) == true or backbuild.hitTest(prev_pos.x, prev_pos.y+47) == true or backbuild.hitTest(prev_pos.x+31, prev_pos.y+47) == true
               prev_pos.x = player.x
             if game.input.up
               is_down_key = true
@@ -118,7 +118,7 @@ $(window).load ->
               is_down_key = true
               prev_pos.y+=2
               player.dir = 0
-            if building.hitTest(prev_pos.x, prev_pos.y+17) == true or building.hitTest(prev_pos.x+31, prev_pos.y+17) == true or building.hitTest(prev_pos.x, prev_pos.y+47) == true or building.hitTest(prev_pos.x+31, prev_pos.y+47) == true
+            if backbuild.hitTest(prev_pos.x, prev_pos.y+17) == true or backbuild.hitTest(prev_pos.x+31, prev_pos.y+17) == true or backbuild.hitTest(prev_pos.x, prev_pos.y+47) == true or backbuild.hitTest(prev_pos.x+31, prev_pos.y+47) == true
               prev_pos.y = player.y
             player.x = prev_pos.x
             player.y = prev_pos.y
@@ -128,9 +128,10 @@ $(window).load ->
               player.anm_num = 0
             player.frame = [player.dir*4+player.anm_num/8%4]
             if player.x >= 32 * 2 and player.x < 32 * 3 and player.y == 32 * 11
-              player.update = ->
-                return
-              location.replace("/users/edit")
+              #player.update = ->
+              #  return
+              #location.replace("/users/edit")
+              player
             return
           game.rootScene.addChild(player)
           return
@@ -209,6 +210,14 @@ $(window).load ->
           ]
           backbuild.image = game.assets[building_img[0]]
           backbuild.loadData(baseMap)
+          backbuild.addEventListener "touchstart", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = buildchip.select
+            @loadData @_data[0]
+            return
+          backbuild.addEventListener "touchmove", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = buildchip.select
+            @loadData @_data[0]
+            return
           game.rootScene.addChild(backbuild)
           return-1
 
@@ -232,6 +241,14 @@ $(window).load ->
           ]
           forebuild.image = game.assets[building_img[0]]
           forebuild.loadData(baseMap)
+          forebuild.addEventListener "touchstart", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = buildchip.select
+            @loadData @_data[0]
+            return
+          forebuild.addEventListener "touchmove", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = buildchip.select
+            @loadData @_data[0]
+            return
           game.rootScene.addChild(forebuild)
           return-1
 
@@ -282,7 +299,7 @@ $(window).load ->
         buildchip = new Sprite()
         do ->
           img = game.assets[building_img[0]]
-          s = new Surface img.width + 16, img.height + 16
+          s = new Surface img.width, img.height + 16
           buildchip.update = ->
             @image.clear()
             c = @image.context
@@ -337,6 +354,21 @@ $(window).load ->
             return
           return
         $("#load").click load
+        $("#ground").click ->
+          ground.touchEnabled = true
+          backbuild.touchEnabled = false
+          forebuild.touchEnabled = false
+          $("#edit_map").html("ground")
+        $("#backbuild").click ->
+          ground.touchEnabled = false
+          backbuild.touchEnabled = true
+          forebuild.touchEnabled = false
+          $("#edit_map").html("backbuild")
+        $("#forebuild").click ->
+          ground.touchEnabled = false
+          backbuild.touchEnabled = false
+          forebuild.touchEnabled = true
+          $("#edit_map").html("forebuild")
         return
     game.start()
   return
