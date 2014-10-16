@@ -9,6 +9,7 @@ html
     = csrf_meta_tag
 
   body class = "#{controller.controller_name} #{controller.action_name}"
+    = hidden_field_tag :hostname, Socket.gethostname
     - if notice
       p.alert.alert-notice
         = notice
@@ -17,6 +18,7 @@ html
         = alert
     p.navbar-text.pull-right
     - if user_signed_in?
+      = hidden_field_tag :user_id, current_user.try(:id)
       |Logged in as 
         strong
           = "#{current_user.email}."

@@ -1,5 +1,14 @@
 $(window).load ->
   if $("body").hasClass "field"
+    ws_rails = new WebSocketRails("#{$("#hostname").val()}:3000/websocket")
+    ws_rails.bind "websocket_position", (message) ->
+      data = message.split(",")
+      for i in [0...data.length]
+        data[i] = parseInt(data[i])
+      if parseInt($("#user_id").val()) != data[0]
+        console.log "#{data[1]}, #{data[2]}"
+    sending_position = (pos) ->
+      ws_rails.trigger("websocket_position", pos)
     enchant()
     game = new Core(640, 480)
     game.fps = 60
@@ -138,6 +147,7 @@ $(window).load ->
 
         game.addEventListener "enterframe", ->
           player.update()
+          sending_position("#{$("#user_id").val()}, #{player._x}, #{player._y}")
           return
       if $("body").hasClass "edit"
         load = ->
