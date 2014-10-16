@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  ground: MyText
+  backbuild: MyText
+  forebuild: MyText
+
+two:
+  ground: MyText
+  backbuild: MyText
+  forebuild: MyText

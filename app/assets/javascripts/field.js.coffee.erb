@@ -1,0 +1,342 @@
+$(window).load ->
+  if $("body").hasClass "field"
+    enchant()
+    game = new Core(640, 480)
+    game.fps = 60
+    ground_img = ["<%= asset_path("bg/grass_plain.png") %>"]
+    building_img = ["<%= asset_path("building/grassland.png") %>"]
+    character_img = ["<%= asset_path("character/thief1.png") %>"]
+    game.preload(ground_img[0], building_img[0], character_img[0])
+    ground = new Map(32, 32)
+    backbuild = new Map(32, 32)
+    forebuild = new Map(32, 32)
+    game.onload = ->
+      if $("body").hasClass "show"
+        load = (num) ->
+          $.post "/field/load", {id: num}, (data) ->
+            if data != "none"
+              tmp = []
+              data.split("&").forEach (e) ->
+                tmp.push e.split(",")
+              ground.loadData tmp
+            return
+          return
+        do ->
+          ground.image = game.assets[ground_img[0]]
+          load(1)
+          game.rootScene.addChild(ground)
+          return
+
+        do ->
+          baseMap = [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+          ]
+          colMap = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          ]
+          backbuild.image = game.assets[building_img[0]]
+          backbuild.loadData(baseMap)
+          backbuild.collisionData = colMap
+          game.rootScene.addChild(backbuild)
+          return-1
+        ###
+        do ->
+          grid = new Sprite(640, 480)
+          s = new Surface(640, 480)
+          grid.image = s
+          c = s.context
+          c.beginPath()
+          c.strokeStyle = "rgba(0, 0, 0, 1)"
+          for i in [0...(640/32)]
+            c.moveTo i * 32, 0
+            c.lineTo i * 32, 480
+          for i in [0...(480/32)]
+            c.moveTo 0, i * 32
+            c.lineTo 640, i * 32
+          c.stroke()
+          game.rootScene.addChild grid
+          return
+        ###
+        player = new Sprite(32, 48)
+        do ->
+          player.image = game.assets[character_img[0]]
+          frames = []
+          for num in [0...4]
+            for cnt in [0...8]
+              frames.push num
+          frames = [0]
+          player.frame = frames
+          player.x = 32 * 4
+          player.y = 32 * 12
+          player.anm_num = 0
+          player.update = ->
+            is_down_key = false
+            prev_pos = new Vector(player.x, player.y)
+            if game.input.right
+              is_down_key = true
+              prev_pos.x+=2
+              player.dir = 2
+            if game.input.left
+              is_down_key = true
+              prev_pos.x-=2
+              player.dir = 1
+            if building.hitTest(prev_pos.x, prev_pos.y+17) == true or building.hitTest(prev_pos.x+31, prev_pos.y + 17) == true or building.hitTest(prev_pos.x, prev_pos.y+47) == true or building.hitTest(prev_pos.x+31, prev_pos.y+47) == true
+              prev_pos.x = player.x
+            if game.input.up
+              is_down_key = true
+              prev_pos.y-=2
+              player.dir = 3
+            if game.input.down
+              is_down_key = true
+              prev_pos.y+=2
+              player.dir = 0
+            if building.hitTest(prev_pos.x, prev_pos.y+17) == true or building.hitTest(prev_pos.x+31, prev_pos.y+17) == true or building.hitTest(prev_pos.x, prev_pos.y+47) == true or building.hitTest(prev_pos.x+31, prev_pos.y+47) == true
+              prev_pos.y = player.y
+            player.x = prev_pos.x
+            player.y = prev_pos.y
+            if is_down_key
+              player.anm_num++
+            else
+              player.anm_num = 0
+            player.frame = [player.dir*4+player.anm_num/8%4]
+            if player.x >= 32 * 2 and player.x < 32 * 3 and player.y == 32 * 11
+              player.update = ->
+                return
+              location.replace("/users/edit")
+            return
+          game.rootScene.addChild(player)
+          return
+
+        game.addEventListener "enterframe", ->
+          player.update()
+          return
+      if $("body").hasClass "edit"
+        load = ->
+          $.post "/field/load", {id: parseInt($("#id").val())}, (data) ->
+            if data != "none"
+              tmp = []
+              data.split("&").forEach (e) ->
+                tmp.push e.split(",")
+              ground.loadData tmp
+            else
+              $("#result").html("none").show()
+              setTimeout ->
+                $("#result").hide()
+                return
+              , 2000
+            return
+          return
+
+        do ->
+          ground.image = game.assets[ground_img[0]]
+          baseMap = [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+          ]
+          ground.loadData baseMap
+          load()
+          ground.touchEnabled = true
+          ground.addEventListener "touchstart", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = chip.select
+            @loadData @_data[0]
+            return
+          ground.addEventListener "touchmove", (e) ->
+            @_data[0][(e.y / 32)|0][(e.x / 32)|0] = chip.select
+            @loadData @_data[0]
+            return
+          game.rootScene.addChild ground
+          return
+
+        # back
+        do ->
+          baseMap = [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+          ]
+          backbuild.image = game.assets[building_img[0]]
+          backbuild.loadData(baseMap)
+          game.rootScene.addChild(backbuild)
+          return-1
+
+        do ->
+          baseMap = [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+          ]
+          forebuild.image = game.assets[building_img[0]]
+          forebuild.loadData(baseMap)
+          game.rootScene.addChild(forebuild)
+          return-1
+
+        chip = new Sprite()
+        do ->
+          img = game.assets[ground_img[0]]
+          s = new Surface img.width, img.height + 16
+          chip.update = ->
+            @image.clear()
+            c = @image.context
+            c.drawImage img._element, 0, 16
+            c.beginPath()
+            c.strokeStyle = "rgba(255, 255, 255, 1)"
+            c.fillStyle = "rgba(128, 128, 255, 0.5)"
+            for i in [0..4]
+              c.moveTo 0, i * 32 + 16
+              c.lineTo s.width, i * 32 + 16
+            for i in [0..3]
+              c.moveTo i * 32, 16
+              c.lineTo i * 32, s.height + 16
+            c.stroke()
+            c.fillRect 0, 0, s.width, 16
+            c.strokeRect (@select % 3) * 32, ((@select / 3)|0) * 32 + 16, 32, 32
+            c.fillRect (@select % 3) * 32, ((@select / 3)|0) * 32 + 16, 32, 32
+            return
+          chip.image = s
+          chip.width = chip.image.width
+          chip.height = chip.image.height
+          chip.select = 0
+          chip.update()
+          chip.addEventListener "touchstart", (e) ->
+            @localX = e.localX
+            @localY = e.localY
+            if e.localY > 16
+              @select = ((e.localX / 32)|0) + (((e.localY - 16) / 32)|0) * (@image.width / 32)
+              @update()
+            return
+          chip.addEventListener "touchmove", (e) ->
+            if @localY <= 16
+              @x = e.x - @localX
+              @y = e.y - @localY
+            return
+          chip.addEventListener "touchend", ->
+            return
+          game.rootScene.addChild chip
+          return
+
+        buildchip = new Sprite()
+        do ->
+          img = game.assets[building_img[0]]
+          s = new Surface img.width + 16, img.height + 16
+          buildchip.update = ->
+            @image.clear()
+            c = @image.context
+            c.drawImage img._element, 16, 16
+            c.beginPath()
+            c.strokeStyle = "rgba(255, 255, 255, 1)"
+            c.fillStyle = "rgba(128, 128, 255, 0.5)"
+            div_num = @image.width/32
+            for i in [0..(@image.height/32)]
+              c.moveTo 16, i * 32 + 16
+              c.lineTo s.width + 16, i * 32 + 16
+            for i in [0..div_num]
+              c.moveTo i * 32 + 16, 16
+              c.lineTo i * 32 + 16, s.height + 16
+            c.stroke()
+            c.fillRect 0, 0, s.width + 16, 16
+            c.fillRect 0, 0, 16, s.height + 16
+            c.strokeRect (@select % div_num) * 32 + 16, ((@select / div_num)|0) * 32 + 16, 32, 32
+            c.fillRect (@select % div_num) * 32 + 16, ((@select / div_num)|0) * 32 + 16, 32, 32
+            return
+          buildchip.image = s
+          buildchip.width = buildchip.image.width
+          buildchip.height = buildchip.image.height
+          buildchip.select = 0
+          buildchip.update()
+          buildchip.addEventListener "touchstart", (e) ->
+            @localX = e.localX
+            @localY = e.localY
+            if e.localY > 16 && e.localX > 16
+              @select = (((e.localX - 16) / 32)|0) + (((e.localY - 16) / 32)|0) * (@image.width / 32)
+              @update()
+            return
+          buildchip.addEventListener "touchmove", (e) ->
+            if @localY <= 16 || @localX <= 16
+              @x = e.x - @localX
+              @y = e.y - @localY
+            return
+          buildchip.addEventListener "touchend", ->
+            return
+          game.rootScene.addChild buildchip
+          return
+
+        game.addEventListener "enterframe", ->
+          
+          return
+        $("#send").click ->
+          $.post "/field", {id: parseInt($("#id").val()), dat: ground._data[0], back: backbuild._data[0], fore: forebuild._data[0]}, (data) ->
+            tmp = []
+            data.split("&").forEach (e) ->
+              tmp.push e.split(",")
+            ground.loadData tmp
+            return
+          return
+        $("#load").click load
+        return
+    game.start()
+  return
