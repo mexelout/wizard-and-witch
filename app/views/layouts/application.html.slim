@@ -9,7 +9,7 @@ html
     = csrf_meta_tag
 
   body class = "#{controller.controller_name} #{controller.action_name}"
-    = hidden_field_tag :hostname, Socket.gethostname
+    = hidden_field_tag :hostname, request.host_with_port
     - if notice
       p.alert.alert-notice
         = notice
