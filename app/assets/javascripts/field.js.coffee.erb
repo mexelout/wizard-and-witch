@@ -2,37 +2,13 @@ $(window).load ->
   if $("body").hasClass "field"
     other_player = []
     ws_rails = new WebSocketRails("#{$("#hostname").val()}/websocket")
-    ws_rails.bind "websocket_position", (message) ->
-      data = message.split(",")
-      for i in [0...data.length]
-        data[i] = parseInt(data[i])
-      if parseInt($("#user_id").val()) != data[0]
-        is_find = false
-        for i in [0...other_player.length]
-          if other_player[i].user_id == data[0]
-            other_player[i].x = data[1]
-            other_player[i].y = data[2]
-            is_find = true
-            break
-        if is_find == false
-          sprite = new Sprite(32, 48)
-          sprite.image = game.assets[character_img[0]]
-          frames = []
-          for num in [0...4]
-            for cnt in [0...8]
-              frames.push num
-          frames = [0]
-          sprite.frame = frames
-          sprite.user_id = data[0]
-          sprite.x = data[1]
-          sprite.y = data[2]
-          game.rootScene.addChild(sprite)
-          other_player.push sprite
-    sending_position = (pos) ->
-      ws_rails.trigger("websocket_position", pos)
+
+    sending_data = (data, type) ->
+      if type == "player"
+        ws_rails.trigger("websocket_position", "#{$("#user_id").val()}, #{data.x}, #{data.y}, #{data.dir}, #{data.anm_num}")
     enchant()
     game = new Core(640, 480)
-    game.fps = 60
+    game.fps = 30
     ground_img = ["<%= asset_path("bg/grass_plain.png") %>"]
     building_img = ["<%= asset_path("building/grassland.png") %>"]
     character_img = ["<%= asset_path("character/thief1.png") %>"]
@@ -165,10 +141,36 @@ $(window).load ->
             return
           game.rootScene.addChild(player)
           return
-
+        ws_rails.bind "websocket_position", (message) ->
+          data = message.split(",")
+          for i in [0...data.length]
+            data[i] = parseInt(data[i])
+          if parseInt($("#user_id").val()) != data[0]
+            is_find = false
+            for i in [0...other_player.length]
+              if other_player[i].user_id == data[0]
+                other_player[i].x = data[1]
+                other_player[i].y = data[2]
+                other_player[i].frame = [data[3]*4+data[4]/8%4]
+                is_find = true
+                break
+            if is_find == false
+              sprite = new Sprite(32, 48)
+              sprite.image = game.assets[character_img[0]]
+              frames = []
+              for num in [0...4]
+                for cnt in [0...8]
+                  frames.push num
+              frames = [0]
+              sprite.frame = frames
+              sprite.user_id = data[0]
+              sprite.x = data[1]
+              sprite.y = data[2]
+              game.rootScene.addChild(sprite)
+              other_player.push sprite
         game.addEventListener "enterframe", ->
           player.update()
-          sending_position("#{$("#user_id").val()}, #{player._x}, #{player._y}")
+          sending_data(player, "player")
           return
       if $("body").hasClass "edit"
         load = ->
